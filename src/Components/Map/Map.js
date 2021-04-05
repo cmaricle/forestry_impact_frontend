@@ -19,6 +19,12 @@ class Map extends Component {
         };
         this.mapContainer = React.createRef();
     }
+    parseJSON(response) {
+        console.log(response.text())
+        return response.text().then(function(text) {
+            return text ? JSON.parse(text) : {}
+        })
+    }
     componentDidMount() {
         const { lng, lat, zoom } = this.state;
         const map = new mapboxgl.Map({
@@ -27,7 +33,27 @@ class Map extends Component {
             center: [lng, lat],
             zoom: zoom
         });
+        fetch("http://127.0.0.1:8000/cutblocks/2010",)
+            .then(res => res.json())
+            .then(
+                (result) => {
+                    console.log(result);
+                    map.addSource('2010', {
+                            'type': 'geojson',
+                            'data': result
 
+                        });
+                    map.addLayer({
+                        'id': '2010',
+                        'type': 'fill',
+                        'source': '2010',
+                        'layout': {},
+                        'paint': {
+                            'fill-color': '#088',
+                            'fill-opacity': 0.8
+                        }
+                    });
+                });
         map.on('move', () => {
             this.setState({
                 lng: map.getCenter().lng.toFixed(4),
@@ -35,6 +61,7 @@ class Map extends Component {
                 zoom: map.getZoom().toFixed(2)
             });
         });
+
     }
     render() {
         const { lng, lat, zoom } = this.state;
